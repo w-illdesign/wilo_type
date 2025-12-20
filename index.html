@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WiloType | Dactylographie Ultra</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #64748b;
+            --accent: #f59e0b;
+        }
+
+        [data-theme="emerald"] { --primary: #10b981; --primary-glow: rgba(16, 185, 129, 0.4); --bg: #064e3b; }
+        [data-theme="sunset"] { --primary: #f59e0b; --primary-glow: rgba(245, 158, 11, 0.4); --bg: #451a03; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background 0.3s ease;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 100%);
+        }
+
+        /* --- SIDEBAR PC --- */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            z-index: 100;
+        }
+
+        .logo-box { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+        .sidebar-section { display: flex; flex-direction: column; gap: 12px; }
+        .sidebar-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom);
+            overflow-y: auto;
+        }
+
+        .game-header {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 800px;
+            width: 100%;
+            margin: 10px auto 20px;
+            padding: 12px 20px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            align-items: center;
+        }
+
+        .stat-item { text-align: center; }
+        .stat-label {
+            display: block;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-value.score { color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 4px; transition: transform 0.2s; }
+        .stat-value.score::after { content: '🪙'; font-size: 0.9rem; }
+        .score-bump { transform: scale(1.2); color: #fff !important; }
+
+        .global-timer {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-menu-top {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            padding: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            margin: 0 auto;
+        }
+        .btn-menu-top:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); }
+
+        .game-modes, .difficulty-modes {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 16px;
+            width: 100%;
+        }
+
+        .mode-btn, .diff-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .mode-btn.active, .diff-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+        
+        .diff-btn.active[data-diff="hard"] { background: var(--error); }
+
+        .game-viewport {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .timer-circular-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .timer-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 8; }
+        .timer-circle-progress {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 754; 
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
+        }
+
+        .word-display {
+            position: relative;
+            z-index: 2;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1rem, 3.5vw, 1.4rem); 
+            text-align: center;
+            color: var(--text);
+            padding: 15px;
+            max-width: 260px; 
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        /* Style spécifique pour les poèmes */
+        .poeme-display {
+            position: absolute;
+            bottom: -80px;
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-style: italic;
+            text-align: center;
+            width: 150%;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: 0.5s;
+        }
+        .poeme-display.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timer-text-inner {
+            position: absolute;
+            bottom: 25px;
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper { width: 100%; max-width: 450px; }
+        #inputEcriture {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+            color: white;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        #inputEcriture:focus { border-color: var(--primary); transform: scale(1.02); }
+        #inputEcriture:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .shake { animation: shake 0.4s both; border-color: var(--error) !important; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .game-footer {
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .btn-action {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+        .btn-action:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .result-card {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .dashboard-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .history-list {
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 5px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.03);
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .theme-opt {
+            height: 45px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: 0.2s;
+            position: relative;
+        }
+        .theme-opt.active { border-color: var(--primary); transform: scale(1.05); }
+
+        @media (max-width: 850px) {
+            body { flex-direction: column; }
+            .sidebar { 
+                width: 100%; 
+                border-right: none; 
+                border-bottom: 1px solid rgba(255,255,255,0.1); 
+                padding: 10px;
+                flex-direction: row;
+                overflow-x: auto;
+                height: auto;
+                gap: 10px;
+            }
+            .sidebar .logo-box, .sidebar-label { display: none; }
+            .game-modes, .difficulty-modes { flex-direction: row; width: auto; padding: 4px; display: flex; }
+            .timer-circular-container { width: 200px; height: 200px; }
+            .game-header { grid-template-columns: repeat(4, 1fr); font-size: 0.7rem; }
+            .poeme-display { width: 100%; font-size: 0.75rem; bottom: -60px; }
+        }
+    </style>
+</head>
+<body data-theme="default">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-box">⌨️ WiloType</div>
+
+        <div class="sidebar-section">
+            <span class="sidebar-label">Niveau</span>
+            <div class="controls-container">
+                <div class="difficulty-modes" id="diffControls">
+                    <button class="diff-btn" data-diff="easy">Débutant</button>
+                    <button class="diff-btn active" data-diff="normal">Initié</button>
+                    <button class="diff-btn" data-diff="hard">Expert</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <span class="sidebar-label">Thématiques</span>
+            <div class="controls-container" id="modeControls">
+                <div class="game-modes">
+                    <button class="mode-btn active" data-mode="1">Tech</button>
+                    <button class="mode-btn" data-mode="4">Nature</button>
+                    <button class="mode-btn" data-mode="5">Espace</button>
+                    <button class="mode-btn" data-mode="2">Quotes</button>
+                    <button class="mode-btn" data-mode="voyage" style="color: #f59e0b;">🌍 Voyage</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="game-header">
+            <div class="stat-item">
+                <button class="btn-menu-top" id="btnDashboard" title="Menu">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Willcoins</span>
+                <span class="stat-value score" id="scoreText">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Vitesse</span>
+                <span class="stat-value" id="wpmValue">0 <small style="font-size:0.6rem">WPM</small></span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Temps Restant</span>
+                <span class="stat-value global-timer" id="globalTimer">01:30</span>
+            </div>
+        </header>
+
+        <section class="game-viewport">
+            <div class="timer-circular-container">
+                <svg class="timer-svg" viewBox="0 0 260 260">
+                    <circle class="timer-circle-bg" cx="130" cy="130" r="120"></circle>
+                    <circle id="progressCircle" class="timer-circle-progress" cx="130" cy="130" r="120"></circle>
+                </svg>
+                <div class="word-display" id="displayProposition">PRÊT ?</div>
+                <div class="poeme-display" id="poemeText"></div>
+                <div class="timer-text-inner" id="timerValue">0s</div>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="text" id="inputEcriture" placeholder="Cliquez sur Jouer" disabled spellcheck="false" autocomplete="off">
+            </div>
+        </section>
+
+        <footer class="game-footer">
+            <button class="btn-action" id="btnDemarrerPause">
+                <svg id="iconPlay" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                </svg>
+                <svg id="iconPause" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="display: none;">
+                    <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/>
+                </svg>
+                <span id="btnLabel">Jouer</span>
+            </button>
+            <button class="btn-action" style="background: rgba(255,255,255,0.05);" id="btnReset">Reset</button>
+        </footer>
+    </main>
+
+    <!-- MODAL TABLEAU DE BORD -->
+    <div class="overlay" id="dashboardModal">
+        <div class="result-card">
+            <h2>Tableau de Bord</h2>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 20px;">Statistiques & Personnalisation</p>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-item">
+                    <span class="stat-label">Meilleur Score</span>
+                    <span class="stat-value" id="highScoreText" style="color:var(--accent); font-size: 1.5rem;">0</span>
+                </div>
+                <div class="dashboard-item">
+                    <span class="stat-label">Record Vitesse</span>
+                    <span class="stat-value" id="bestWPMText" style="font-size: 1.5rem;">0</span>
+                </div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 25px;">
+                <span class="sidebar-label" style="display: block; margin-bottom: 10px;">Thèmes Visuels</span>
+                <div class="theme-selector">
+                    <div class="theme-opt" id="theme-default" style="background: #0f172a;" data-theme="default"></div>
+                    <div class="theme-opt" id="theme-emerald" style="background: #064e3b;" data-theme="emerald"></div>
+                    <div class="theme-opt" id="theme-sunset" style="background: #451a03;" data-theme="sunset"></div>
+                </div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 20px;">
+                <span class="sidebar-label" style="display: block; margin-bottom: 10px;">Dernières Sessions</span>
+                <div class="history-list" id="historyList"></div>
+            </div>
+
+            <button id="btnCloseDashboard" class="btn-action" style="width: 100%; justify-content: center;">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODAL FIN DE JEU -->
+    <div class="overlay" id="popupBackground">
+        <div class="result-card">
+            <h2 style="margin-bottom: 20px;">Session terminée !</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 20px;">
+                    <span class="stat-label">Willcoins</span>
+                    <span class="stat-value" id="finalScore" style="color:var(--accent)">0</span>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 20px;">
+                    <span class="stat-label">Vitesse</span>
+                    <span class="stat-value" id="finalWPM">0</span>
+                </div>
+            </div>
+            <button id="btnRejouer" class="btn-action" style="width: 100%; justify-content: center;">Rejouer</button>
+        </div>
+    </div>
+
+    <script>
+        const CIRCUMFERENCE = 2 * Math.PI * 120;
+        const GAME_DURATION = 90;
+        
+        const VOYAGE_POETIQUE = [
+            { mot: "France", poeme: "Sous le ciel de zinc, les pavés murmurent." },
+            { mot: "Japon", poeme: "Un pétale frôle le silence du temple." },
+            { mot: "Maroc", poeme: "Le vent dessine des vagues d'or." },
+            { mot: "Islande", poeme: "Les aurores dansent comme des fantômes." },
+            { mot: "Brésil", poeme: "Le rythme du cœur accordé au fracas." },
+            { mot: "Italie", poeme: "L'ombre des cyprès sur le marbre des siècles." },
+            { mot: "Grèce", poeme: "L'azur embrasse la chaux blanche." }
+        ];
+
+        const CATEGORIES = {
+            "1": ["Ordinateur", "Interface", "Performance", "Développement", "Navigateur", "Application", "Logiciel", "Smartphone", "Algorithme", "Serveur", "Cybersécurité", "Blockchain", "Intelligence", "Numérique"],
+            "2": ["Le code est de la poésie.", "La vitesse est un art.", "Maîtrisez votre clavier.", "Innover c'est créer.", "Le futur est ici.", "Coder change le monde.", "La tech est partout."],
+            "4": ["Forêt", "Montagne", "Rivière", "Écosystème", "Biodiversité", "Environnement", "Océan", "Horizon", "Végétation", "Atmosphère", "Cascade", "Sauvage", "Naturel", "Péninsule"],
+            "5": ["Galaxie", "Nébuleuse", "Constellation", "Astronomie", "Cosmos", "Exoplanète", "Astéroïde", "Satellite", "Orbite", "Télescope", "Gravité", "Univers", "Supernova", "Comète"],
+            "voyage": VOYAGE_POETIQUE.map(v => v.mot)
+        };
+
+        const DIFF_SETTINGS = {
+            easy: { timeMult: 1.5, scoreMult: 0.5 },
+            normal: { timeMult: 1, scoreMult: 1 },
+            hard: { timeMult: 0.6, scoreMult: 1.5 }
+        };
+
+        const BASE_TIMES = { "1": 10, "2": 18, "4": 10, "5": 12, "voyage": 12 };
+
+        const gameState = {
+            score: 0,
+            index: 0,
+            listeProposition: [],
+            timerMot: 0,
+            timerGlobal: GAME_DURATION,
+            dureeParMot: 0,
+            intervalMot: null,
+            intervalGlobal: null,
+            totalLettresReussies: 0,
+            tempsTotalEcoule: 0,
+            jeuEnCours: false,
+            enPause: false,
+            modeActuel: "1",
+            diffActuelle: "normal",
+            historique: JSON.parse(localStorage.getItem('wiloHistory') || '[]')
+        };
+
+        const elements = {
+            displayProposition: document.getElementById('displayProposition'),
+            poemeText: document.getElementById('poemeText'),
+            inputEcriture: document.getElementById('inputEcriture'),
+            scoreText: document.getElementById('scoreText'),
+            timerValue: document.getElementById('timerValue'),
+            globalTimer: document.getElementById('globalTimer'),
+            progressCircle: document.getElementById('progressCircle'),
+            wpmValue: document.getElementById('wpmValue'),
+            btnPlay: document.getElementById('btnDemarrerPause'),
+            iconPlay: document.getElementById('iconPlay'),
+            iconPause: document.getElementById('iconPause'),
+            btnLabel: document.getElementById('btnLabel')
+        };
+
+        function init() {
+            setTheme(localStorage.getItem('wiloTheme') || 'default');
+            updateRecordUI();
+            
+            elements.btnPlay.addEventListener('click', toggleGame);
+            document.getElementById('btnReset').addEventListener('click', () => location.reload());
+            document.getElementById('btnDashboard').addEventListener('click', () => openModal('dashboardModal'));
+            document.getElementById('btnCloseDashboard').addEventListener('click', () => closeModal('dashboardModal'));
+            document.getElementById('btnRejouer').addEventListener('click', () => location.reload());
+            
+            elements.inputEcriture.addEventListener('input', checkInput);
+
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (gameState.jeuEnCours) return;
+                    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    gameState.diffActuelle = e.target.dataset.diff;
+                });
+            });
+
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (gameState.jeuEnCours) return;
+                    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    gameState.modeActuel = e.target.dataset.mode;
+                });
+            });
+
+            document.querySelectorAll('.theme-opt').forEach(opt => {
+                opt.addEventListener('click', () => setTheme(opt.dataset.theme));
+            });
+        }
+
+        function toggleGame() {
+            if (!gameState.jeuEnCours) {
+                startNewGame();
+            } else {
+                togglePause();
+            }
+        }
+
+        function startNewGame() {
+            gameState.score = 0;
+            gameState.index = 0;
+            gameState.totalLettresReussies = 0;
+            gameState.tempsTotalEcoule = 0;
+            gameState.timerGlobal = GAME_DURATION;
+            gameState.jeuEnCours = true;
+            gameState.enPause = false;
+            
+            const settings = DIFF_SETTINGS[gameState.diffActuelle];
+            gameState.dureeParMot = Math.round(BASE_TIMES[gameState.modeActuel] * settings.timeMult);
+            gameState.timerMot = gameState.dureeParMot;
+            gameState.listeProposition = [...CATEGORIES[gameState.modeActuel]].sort(() => Math.random() - 0.5);
+            
+            elements.inputEcriture.disabled = false;
+            elements.inputEcriture.value = "";
+            elements.btnLabel.textContent = "Pause";
+            elements.iconPlay.style.display = "none";
+            elements.iconPause.style.display = "inline";
+            
+            document.querySelector('.sidebar').style.pointerEvents = "none";
+            document.querySelector('.sidebar').style.opacity = "0.5";
+
+            nextWord();
+            runTimers();
+            elements.inputEcriture.focus();
+        }
+
+        function togglePause() {
+            gameState.enPause = !gameState.enPause;
+            if (gameState.enPause) {
+                clearIntervals();
+                elements.inputEcriture.disabled = true;
+                elements.btnLabel.textContent = "Reprendre";
+                elements.iconPlay.style.display = "inline";
+                elements.iconPause.style.display = "none";
+                elements.displayProposition.textContent = "PAUSE";
+            } else {
+                elements.inputEcriture.disabled = false;
+                elements.btnLabel.textContent = "Pause";
+                elements.iconPlay.style.display = "none";
+                elements.iconPause.style.display = "inline";
+                elements.displayProposition.textContent = gameState.listeProposition[gameState.index];
+                runTimers();
+                elements.inputEcriture.focus();
+            }
+        }
+
+        function runTimers() {
+            clearIntervals();
+            
+            gameState.intervalMot = setInterval(() => {
+                if (gameState.timerMot > 0) {
+                    gameState.timerMot -= 0.1;
+                    updateVisuals();
+                } else {
+                    handleFail();
+                }
+            }, 100);
+
+            gameState.intervalGlobal = setInterval(() => {
+                if (gameState.timerGlobal > 0) {
+                    gameState.timerGlobal--;
+                    gameState.tempsTotalEcoule++;
+                    elements.globalTimer.textContent = formatTime(gameState.timerGlobal);
+                } else {
+                    gameOver();
+                }
+            }, 1000);
+        }
+
+        function clearIntervals() {
+            clearInterval(gameState.intervalMot);
+            clearInterval(gameState.intervalGlobal);
+        }
+
+        function updateVisuals() {
+            elements.timerValue.textContent = Math.ceil(gameState.timerMot) + "s";
+            const percent = (gameState.timerMot / gameState.dureeParMot) * 100;
+            const offset = CIRCUMFERENCE - (percent / 100 * CIRCUMFERENCE);
+            elements.progressCircle.style.strokeDashoffset = offset;
+            elements.progressCircle.style.stroke = percent < 25 ? "var(--error)" : (percent < 50 ? "var(--accent)" : "var(--primary)");
+        }
+
+        function nextWord() {
+            if (gameState.index >= gameState.listeProposition.length) {
+                gameState.listeProposition = [...CATEGORIES[gameState.modeActuel]].sort(() => Math.random() - 0.5);
+                gameState.index = 0;
+            }
+            
+            const currentWord = gameState.listeProposition[gameState.index];
+            elements.displayProposition.textContent = currentWord;
+            gameState.timerMot = gameState.dureeParMot;
+            elements.inputEcriture.value = "";
+            elements.poemeText.classList.remove('show');
+            updateVisuals();
+        }
+
+        function checkInput() {
+            if (!gameState.jeuEnCours || gameState.enPause) return;
+            
+            const target = gameState.listeProposition[gameState.index];
+            const current = elements.inputEcriture.value;
+            
+            if (current === target) {
+                handleSuccess(target);
+            }
+        }
+
+        function handleSuccess(word) {
+            const settings = DIFF_SETTINGS[gameState.diffActuelle];
+            const points = Math.round((word.length * 2 + gameState.timerMot) * settings.scoreMult);
+            
+            gameState.score += points;
+            gameState.totalLettresReussies += word.length;
+
+            // Gestion spéciale du mode Voyage
+            if (gameState.modeActuel === "voyage") {
+                const data = VOYAGE_POETIQUE.find(v => v.mot === word);
+                if (data) {
+                    elements.poemeText.textContent = data.poeme;
+                    elements.poemeText.classList.add('show');
+                }
+            }
+            
+            elements.scoreText.textContent = gameState.score;
+            elements.scoreText.classList.add('score-bump');
+            setTimeout(() => elements.scoreText.classList.remove('score-bump'), 200);
+            
+            const minutes = (gameState.tempsTotalEcoule || 1) / 60;
+            const wpm = Math.round((gameState.totalLettresReussies / 5) / minutes);
+            elements.wpmValue.innerHTML = `${wpm} <small style="font-size:0.6rem">WPM</small>`;
+            
+            gameState.index++;
+            // Petit délai pour lire le poème en mode voyage avant le mot suivant
+            const delay = gameState.modeActuel === "voyage" ? 800 : 0;
+            setTimeout(nextWord, delay);
+        }
+
+        function handleFail() {
+            elements.inputEcriture.classList.add('shake');
+            setTimeout(() => elements.inputEcriture.classList.remove('shake'), 400);
+            gameState.index++;
+            nextWord();
+        }
+
+        function gameOver() {
+            clearIntervals();
+            gameState.jeuEnCours = false;
+            elements.inputEcriture.disabled = true;
+            
+            const minutes = (gameState.tempsTotalEcoule || 1) / 60;
+            const finalWPM = Math.round((gameState.totalLettresReussies / 5) / minutes);
+            
+            saveToHistory(gameState.score, finalWPM);
+            
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalWPM').textContent = finalWPM;
+            document.getElementById('popupBackground').style.display = "flex";
+        }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function saveToHistory(score, wpm) {
+            const entry = { score, wpm, date: new Date().toLocaleDateString() };
+            gameState.historique.unshift(entry);
+            if(gameState.historique.length > 10) gameState.historique.pop();
+            localStorage.setItem('wiloHistory', JSON.stringify(gameState.historique));
+            updateRecordUI();
+        }
+
+        function updateRecordUI() {
+            const high = Math.max(...gameState.historique.map(h => h.score), 0);
+            const best = Math.max(...gameState.historique.map(h => h.wpm), 0);
+            document.getElementById('highScoreText').textContent = high;
+            document.getElementById('bestWPMText').textContent = best;
+            
+            const list = document.getElementById('historyList');
+            list.innerHTML = gameState.historique.length ? '' : '<div style="text-align:center;color:var(--text-muted)">Aucun historique</div>';
+            gameState.historique.forEach(h => {
+                list.innerHTML += `<div class="history-item"><span>${h.date}</span><b>${h.score}🪙 (${h.wpm} WPM)</b></div>`;
+            });
+        }
+
+        function setTheme(t) {
+            document.body.setAttribute('data-theme', t);
+            localStorage.setItem('wiloTheme', t);
+            document.querySelectorAll('.theme-opt').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.theme === t);
+            });
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        init();
+    </script>
+</body>
+</html>

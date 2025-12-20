@@ -1,0 +1,337 @@
+
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --panel: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #64748b;
+            --accent: #f59e0b;
+        }
+
+        /* Thèmes additionnels */
+        [data-theme="emerald"] { --primary: #10b981; --primary-glow: rgba(16, 185, 129, 0.4); --bg: #064e3b; }
+        [data-theme="sunset"] { --primary: #f59e0b; --primary-glow: rgba(245, 158, 11, 0.4); --bg: #451a03; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background 0.3s ease;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row; /* Changement pour Sidebar sur PC */
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 100%);
+        }
+
+        /* --- SIDEBAR PC --- */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            z-index: 100;
+        }
+
+        .logo-box { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+
+        .sidebar-section { display: flex; flex-direction: column; gap: 12px; }
+        .sidebar-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .btn-nav:hover { background: rgba(255,255,255,0.1); }
+
+        /* --- CONTENEUR PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom);
+            overflow-y: auto;
+        }
+
+        /* --- HEADER --- */
+        .game-header {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            width: 100%;
+            margin: 10px auto 20px;
+            padding: 12px 20px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stat-item { text-align: center; }
+        .stat-label {
+            display: block;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .stat-value.score { color: var(--accent); display: flex; align-items: center; justify-content: center; gap: 4px; transition: transform 0.2s; }
+        .stat-value.score::after { content: '🪙'; font-size: 0.9rem; }
+        .score-bump { transform: scale(1.2); color: #fff !important; }
+
+        /* --- CONTROLES (Réutilisés de ton code, mais verticaux dans sidebar) --- */
+        .sidebar .controls-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .game-modes, .difficulty-modes {
+            display: flex;
+            flex-direction: column; /* Vertical sur sidebar */
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 16px;
+            width: 100%;
+        }
+
+        .mode-btn, .diff-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .mode-btn.active, .diff-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+        
+        .diff-btn.active[data-diff="hard"] { background: var(--error); }
+
+        /* --- ZONE CENTRALE --- */
+        .game-viewport {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .timer-circular-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .timer-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle-bg { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 8; }
+        .timer-circle-progress {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 754; 
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 1s linear, stroke 0.3s;
+        }
+
+        .word-display {
+            position: relative;
+            z-index: 2;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            text-align: center;
+            color: var(--text);
+            padding: 20px;
+            max-width: 220px;
+            word-wrap: break-word;
+        }
+
+        .timer-text-inner {
+            position: absolute;
+            bottom: 30px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        /* --- INPUT --- */
+        .input-wrapper { width: 100%; max-width: 450px; }
+        #inputEcriture {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            color: white;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        #inputEcriture:focus { border-color: var(--primary); transform: scale(1.02); }
+
+        .shake { animation: shake 0.4s both; border-color: var(--error) !important; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        /* --- FOOTER --- */
+        .game-footer {
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .btn-action {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- OVERLAY --- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .result-card {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 28px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Liste d'historique */
+        .history-list {
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        .theme-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .theme-opt {
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .theme-opt.active { border-color: white; }
+
+        /* --- RESPONSIVE MOBILE --- */
+        @media (max-width: 850px) {
+            body { flex-direction: column; }
+            .sidebar { 
+                width: 100%; 
+                border-right: none; 
+                border-bottom: 1px solid rgba(255,255,255,0.1); 
+                padding: 15px;
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 15px;
+            }
+            .sidebar .logo-box, .sidebar-label { display: none; }
+            .game-modes, .difficulty-modes { flex-direction: row; width: auto; }
+            .sidebar .controls-container { flex-direction: row; }
+            .sidebar-section { flex-direction: row; align-items: center; }
+            .btn-nav span { display: none; }
+            .sidebar-section:last-child { margin-left: auto; }
+        }
